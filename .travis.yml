@@ -16,8 +16,8 @@ before_install:
   - chmod +x $GOPATH/bin/dep
 
 install:
-  - cd src/aws-key-importer && dep ensure
+  - dep ensure
 
 script:
-  - cd $HOME/gopath/src/github.com/Voronenko/aws-key-importer/src/aws-key-importer && golangci-lint run || true
-  - cd $HOME/gopath/src/github.com/Voronenko/aws-key-importer/src/aws-key-importer && go build -o ../../bin/aws-key-importer
+  - cd ${TRAVIS_BUILD_DIR}/cmd/aws-key-importer && golangci-lint run || true
+  - cd ${TRAVIS_BUILD_DIR}/cmd/aws-key-importer && go build -o ../../out/aws-key-importer
