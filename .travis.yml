@@ -19,5 +19,5 @@ install:
   - cd src/aws-key-importer && dep ensure
 
 script:
-  - cd src/aws-key-importer && golangci-lint run || true
-  - cd src/aws-key-importer && go build -o ../../bin/aws-key-importer
+  - cd $HOME/gopath/src/github.com/Voronenko/aws-key-importer/src/aws-key-importer && golangci-lint run || true
+  - cd $HOME/gopath/src/github.com/Voronenko/aws-key-importer/src/aws-key-importer && go build -o ../../bin/aws-key-importer
