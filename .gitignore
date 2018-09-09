@@ -1,5 +1,5 @@
 .idea
 bin/
 !bin/.gitkeep
-src/aws-key-importer/vendor/
 pkg/
+src/aws-key-importer/vendor/

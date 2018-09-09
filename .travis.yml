@@ -1,7 +1,23 @@
 language: go
+
 go:
   - 1.10.1
   - tip
-script:
+
+# Only clone the most recent commit.
+git:
+  depth: 1
+
+before_install:
+  - curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | bash -s -- -b $GOPATH/bin v${GOLINT_VERSION:-1.10.2}
+# Download the binary to bin folder in $GOPATH
+  - curl -L -s https://github.com/golang/dep/releases/download/v${DEP_VERSION:-0.5.0}/dep-linux-amd64 -o $GOPATH/bin/dep
+  # Make the binary executable
+  - chmod +x $GOPATH/bin/dep
+
+install:
   - cd src/aws-key-importer && dep ensure
-  - cd src/aws-key-importer && go build -o ../../bin/aws-key-importer
+
+script:
+  - cd $HOME/gopath/src/github.com/Voronenko/aws-key-importer/src/aws-key-importer && golangci-lint run || true
+  - cd $HOME/gopath/src/github.com/Voronenko/aws-key-importer/src/aws-key-importer && go build -o ../../bin/aws-key-importer

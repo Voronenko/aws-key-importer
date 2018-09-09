@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
-    "github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"io/ioutil"
@@ -28,16 +28,18 @@ func main() {
 			var keyName string
 			var publicKeyName string
 			pubKeyDefault := useDefaultIdRsaPub()
-			var awsregion="us-east-1"
+			var awsregion string = "us-east-1"
 
 			switch len(args) {
 			case 0:
 				keyName = prompt("Key Name", "")
 				publicKeyName = prompt("Public key", pubKeyDefault)
+				awsregion = prompt("AWS Region", "us-east-1")
 				fmt.Println("")
 			case 1:
 				keyName = args[0]
 				publicKeyName = prompt("Public key", pubKeyDefault)
+				awsregion = prompt("AWS Region", "us-east-1")
 				fmt.Println("")
 			case 2:
 				keyName = args[0]
@@ -75,7 +77,6 @@ func main() {
 		},
 	}
 
-
 	rootCmd := &cobra.Command{Use: Name}
 	rootCmd.PersistentFlags().BoolVarP(&dryRun, "dry-run", "", false, "Validates basic readiness (aws creds set and so on)")
 	rootCmd.AddCommand(keyImportCommand)
@@ -91,7 +92,18 @@ func importKeyPair(keyName string, pubKey string, region string, dryRun bool) er
 	sess := session.Must(session.NewSession())
 
 	label := fmt.Sprintf("%s:", region)
-	svc := ec2.New(sess, &aws.Config{Region: aws.String(region)})
+	client := ec2.New(sess, &aws.Config{Region: aws.String(region)})
+
+	if keyPairExists(client, keyName, dryRun) {
+		fmt.Print("Keypair with specified name already exists.\n\n")
+ 		return nil
+	}
+
+	regions := regions(client)
+	if !Contains(regions, region) {
+		fmt.Print("Region with specified name already exists.\n\n")
+		return nil
+	}
 
 	input := &ec2.ImportKeyPairInput{
 		KeyName:           aws.String(keyName),
@@ -99,7 +111,7 @@ func importKeyPair(keyName string, pubKey string, region string, dryRun bool) er
 		DryRun:            aws.Bool(dryRun),
 	}
 
-	resp, err := svc.ImportKeyPair(input)
+	resp, err := client.ImportKeyPair(input)
 
 	if err != nil {
 		errMsg := err.Error()
@@ -111,9 +123,9 @@ func importKeyPair(keyName string, pubKey string, region string, dryRun bool) er
 		default:
 			fmt.Printf("%-16s Unexpected error during importing '%s' - %v\n", label, keyName, err)
 		}
+	} else {
+		fmt.Printf("%-16s Imported keypair '%s' - %v\n", label, keyName, *resp.KeyFingerprint)
 	}
-
-	fmt.Printf("%-16s Imported keypair '%s' - %v\n", label, keyName, *resp.KeyFingerprint)
 
 	return nil
 }
@@ -132,11 +144,16 @@ func keyPairExists(svc *ec2.EC2, keyName string, dryRun bool) bool {
 	return len(resp.KeyPairs) > 0
 }
 
-func regions() []string {
+func Contains(a []string, x string) bool {
+	for _, n := range a {
+		if x == n {
+			return true
+		}
+	}
+	return false
+}
 
-	sess := session.Must(session.NewSession())
-
-	svc := ec2.New(sess)
+func regions(svc *ec2.EC2) []string {
 
 	resp, err := svc.DescribeRegions(nil)
 	if err != nil {
@@ -151,26 +168,6 @@ func regions() []string {
 	return regions
 }
 
-func confirm(q string) bool {
-	fmt.Printf("%s (yes/no) [no]: ", q)
-
-	r := bufio.NewReader(os.Stdin)
-	val, err := r.ReadString('\n')
-	if err != nil {
-		fmt.Printf("Failed to confirm: %v\n", err)
-		return false
-	}
-
-	val = strings.ToLower(strings.TrimSpace(val))
-
-	for _, response := range []string{"y", "yes"} {
-		if val == response {
-			return true
-		}
-	}
-
-	return false
-}
 
 func prompt(name string, defaultVal string) string {
 	var p string
