@@ -19,5 +19,5 @@ install:
   - dep ensure
 
 script:
-  - cd cmd/aws-key-importer && golangci-lint run || true
-  - cd cmd/aws-key-importer && go build -o ../../out/aws-key-importer
+  - cd ${TRAVIS_BUILD_DIR}/cmd/aws-key-importer && golangci-lint run || true
+  - cd ${TRAVIS_BUILD_DIR}/cmd/aws-key-importer && go build -o ../../out/aws-key-importer
