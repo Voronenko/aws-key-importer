@@ -1,0 +1,7 @@
+language: go
+go:
+  - 1.10.1
+  - tip
+script:
+  - cd src/aws-key-importer && dep ensure
+  - cd src/aws-key-importer && go build -o ../../bin/aws-key-importer
