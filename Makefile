@@ -1,3 +1,5 @@
+VERSION:=$(shell cat version.txt)
+
 install-dep-tool:
 	curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 
@@ -17,4 +19,4 @@ build: deps
 	cd cmd/aws-key-importer && go build -o ../../out/aws-key-importer
 
 upload:
-	github-release upload  --user voronenko --repo aws-key-importer --tag 0.1.0  --name "aws-key-importer-linux-amd64" --file out/aws-key-importer
+	github-release upload  --user voronenko --repo aws-key-importer --tag $(VERSION)  --name "aws-key-importer-linux-amd64" --file out/aws-key-importer
