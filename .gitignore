@@ -2,4 +2,5 @@
 bin/
 !bin/.gitkeep
 pkg/
-src/aws-key-importer/vendor/
+src/
+!src/aws-key-importer
