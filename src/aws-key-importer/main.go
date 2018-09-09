@@ -28,7 +28,7 @@ func main() {
 			var keyName string
 			var publicKeyName string
 			pubKeyDefault := useDefaultIdRsaPub()
-			var awsregion = "us-east-1"
+			var awsregion string = "us-east-1"
 
 			switch len(args) {
 			case 0:
@@ -97,7 +97,12 @@ func importKeyPair(keyName string, pubKey string, region string, dryRun bool) er
 	if keyPairExists(client, keyName, dryRun) {
 		fmt.Print("Keypair with specified name already exists.\n\n")
  		return nil
+	}
 
+	regions := regions(client)
+	if !Contains(regions, region) {
+		fmt.Print("Region with specified name already exists.\n\n")
+		return nil
 	}
 
 	input := &ec2.ImportKeyPairInput{
@@ -139,13 +144,18 @@ func keyPairExists(svc *ec2.EC2, keyName string, dryRun bool) bool {
 	return len(resp.KeyPairs) > 0
 }
 
-func regions() []string {
+func Contains(a []string, x string) bool {
+	for _, n := range a {
+		if x == n {
+			return true
+		}
+	}
+	return false
+}
 
-	sess := session.Must(session.NewSession())
+func regions(svc *ec2.EC2) []string {
 
-	client := ec2.New(sess)
-
-	resp, err := client.DescribeRegions(nil)
+	resp, err := svc.DescribeRegions(nil)
 	if err != nil {
 		panic(err)
 	}
@@ -158,26 +168,6 @@ func regions() []string {
 	return regions
 }
 
-func confirm(q string) bool {
-	fmt.Printf("%s (yes/no) [no]: ", q)
-
-	r := bufio.NewReader(os.Stdin)
-	val, err := r.ReadString('\n')
-	if err != nil {
-		fmt.Printf("Failed to confirm: %v\n", err)
-		return false
-	}
-
-	val = strings.ToLower(strings.TrimSpace(val))
-
-	for _, response := range []string{"y", "yes"} {
-		if val == response {
-			return true
-		}
-	}
-
-	return false
-}
 
 func prompt(name string, defaultVal string) string {
 	var p string
