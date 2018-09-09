@@ -8,13 +8,13 @@ install-githubrelease-tool:
 	go get github.com/aktau/github-release
 
 deps:
-	cd src/aws-key-importer && dep ensure
+	dep ensure
 
 lint:
-	cd src/aws-key-importer && golangci-lint run
+	cd cmd/aws-key-importer && golangci-lint run
 
 build: deps
-	cd src/aws-key-importer && go build -o ../../bin/aws-key-importer
+	cd cmd/aws-key-importer && go build -o ../../out/aws-key-importer
 
 upload:
-	github-release upload  --user voronenko --repo aws-key-importer --tag 0.1.0  --name "aws-key-importer-linux-amd64" --file bin/aws-key-importer
+	github-release upload  --user voronenko --repo aws-key-importer --tag 0.1.0  --name "aws-key-importer-linux-amd64" --file out/aws-key-importer
