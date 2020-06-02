@@ -1,14 +1,9 @@
 Simple console utility to import your own id_rsa.pub key (or any other) to chosen aws region, assuming you have right to do so.
 
 # Dependencies
-Uses dep utility to manage dependencies, rather than glide.
-If you don't have one
-
-`make install-dep-tool`
-
 to install dependencies
 
-`make deps`  or  `cd src/aws-key-importer && dep ensure`
+`make deps`
 
 to build binary
 

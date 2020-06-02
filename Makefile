@@ -1,22 +1,14 @@
 VERSION:=$(shell cat version.txt)
 
-install-dep-tool:
-	curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-
 install-golint-tool:
 	curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | bash -s -- -b $(GOPATH)/bin
-
-install-githubrelease-tool:
-	go get github.com/aktau/github-release
-
-deps:
-	dep ensure
 
 lint:
 	cd cmd/aws-key-importer && golangci-lint run
 
-build: deps
-	cd cmd/aws-key-importer && go build -o ../../out/aws-key-importer
+deps:
+	go mod download
+	go mod vendor
 
-upload:
-	github-release upload  --user voronenko --repo aws-key-importer --tag $(VERSION)  --name "aws-key-importer-linux-amd64" --file out/aws-key-importer
+build: deps
+	cd cmd/aws-key-importer && go build -o ../../dist/aws-key-importer
