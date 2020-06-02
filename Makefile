@@ -1,7 +1,20 @@
+SHELL := /bin/bash
+PATH := $(CURDIR)/.gopath/bin:$(PATH)
 VERSION:=$(shell cat version.txt)
+PACKAGE  = github.com/voronenko/aws_key_importer
+GOPATH   = $(CURDIR)/.gopath
+BASE     = $(GOPATH)/src/$(PACKAGE)
 
-install-golint-tool:
-	curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | bash -s -- -b $(GOPATH)/bin
+$(BASE):
+	@mkdir -p $(dir $@)
+	@ln -sf $(CURDIR) $@
+
+local_bin_deps: $(BASE)
+	@go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
+
+deps:
+	go mod download
+  go mod vendor
 
 lint:
 	cd cmd/aws-key-importer && golangci-lint run
@@ -11,4 +24,4 @@ deps:
 	go mod vendor
 
 build: deps
-	cd cmd/aws-key-importer && go build -o ../../dist/aws-key-importer
+	cd $(BASE)/cmd/aws-key-importer && go build -o ../../dist/aws-key-importer
