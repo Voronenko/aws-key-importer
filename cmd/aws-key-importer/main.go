@@ -4,8 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"io/ioutil"
@@ -27,8 +27,9 @@ func main() {
 		Run: func(cmd *cobra.Command, args []string) {
 			var keyName string
 			var publicKeyName string
+			var awsregion string
+
 			pubKeyDefault := useDefaultIdRsaPub()
-			var awsregion string = "us-east-1"
 
 			switch len(args) {
 			case 0:
@@ -54,19 +55,25 @@ func main() {
 
 			if keyName == "" {
 				fmt.Print("Key keyName is required.\n\n")
-				cmd.Usage()
+				if err := cmd.Usage(); err != nil {
+					return
+				}
 				return
 			}
 
 			if publicKeyName == "nil" {
 				fmt.Print("Public key file is required.\n\n")
-				cmd.Usage()
+				if err := cmd.Usage(); err != nil {
+					return
+				}
 				return
 			}
 
 			if awsregion == "" { //todo: Check presence in regions(0
 				fmt.Print("Region is required.\n\n")
-				cmd.Usage()
+				if err := cmd.Usage(); err != nil {
+					return
+				}
 				return
 			}
 
@@ -80,7 +87,10 @@ func main() {
 	rootCmd := &cobra.Command{Use: Name}
 	rootCmd.PersistentFlags().BoolVarP(&dryRun, "dry-run", "", false, "Validates basic readiness (aws creds set and so on)")
 	rootCmd.AddCommand(keyImportCommand)
-	rootCmd.Execute()
+	if err := rootCmd.Execute(); err != nil {
+		return
+	}
+
 }
 
 func importKeyPair(keyName string, pubKey string, region string, dryRun bool) error {

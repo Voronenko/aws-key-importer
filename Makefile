@@ -6,5 +6,8 @@ install-golint-tool:
 lint:
 	cd cmd/aws-key-importer && golangci-lint run
 
-build:
+deps:
+	go mod vendor
+
+build: deps
 	cd cmd/aws-key-importer && go build -o ../../out/aws-key-importer
