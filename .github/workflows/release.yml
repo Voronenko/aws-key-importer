@@ -25,7 +25,7 @@ jobs:
           version: v1.26
           
           # Optional: working directory, useful for monorepos
-           working-directory: cmd/aws-key-importer
+          working-directory: cmd/aws-key-importer
 
           # Optional: golangci-lint command line arguments.
           # args: --issues-exit-code=0
