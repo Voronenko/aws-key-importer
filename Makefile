@@ -7,7 +7,8 @@ lint:
 	cd cmd/aws-key-importer && golangci-lint run
 
 deps:
+	go mod download
 	go mod vendor
 
 build: deps
-	cd cmd/aws-key-importer && go build -o ../../out/aws-key-importer
+	cd cmd/aws-key-importer && go build -o ../../dist/aws-key-importer
